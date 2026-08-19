@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>HSK6 LESSON 03 - 交互词汇卡</title>
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            padding: 12px;
+        }
+
+        .phone-frame {
+            position: relative;
+            width: 100%;
+            max-width: 420px;
+            aspect-ratio: 9 / 16;
+            background: linear-gradient(145deg, #ff9a9e 0%, #fecfef 30%, #fdfcfb 70%, #a8edea 100%);
+            border-radius: 36px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.2) inset;
+            padding: 18px 16px 16px 16px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background 0.6s ease;
+        }
+
+        .phone-frame::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            right: -20%;
+            width: 70%;
+            height: 70%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .phone-frame::after {
+            content: '';
+            position: absolute;
+            bottom: -10%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(72, 219, 251, 0.20) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .header {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding-bottom: 6px;
+            flex-shrink: 0;
+            user-select: none;
+        }
+        .header h1 {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(18px, 4.2vw, 30px);
+            font-weight: 700;
+            color: #2d1b4e;
+            text-shadow: 0 2px 12px rgba(255, 215, 0, 0.5), 0 0 30px rgba(255, 200, 0, 0.2);
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #6a3093, #a044ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .header .sub {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(10px, 2.2vw, 16px);
+            color: #4a3a6a;
+            letter-spacing: 4px;
+            opacity: 0.9;
+            font-weight: 400;
+            margin-top: -2px;
+            text-shadow: 0 1px 4px rgba(255, 255, 255, 0.6);
+        }
+        .header .sub span {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.35);
+            padding: 0 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .card-wrapper {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            min-height: 0;
+            perspective: 1200px;
+            margin: 4px 0 8px 0;
+            cursor: pointer;
+        }
+
+        .card-flipper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.65s cubic-bezier(0.23, 1, 0.32, 1);
+            transform-style: preserve-3d;
+            border-radius: 28px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-flipper.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 22px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(6px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.3);
+        }
+
+        .card-front {
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.95), rgba(255, 240, 245, 0.92));
+            border: 2px solid rgba(255, 215, 0, 0.3);
+        }
+        .card-front .hanzi {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(68px, 15vw, 120px);
+            font-weight: 700;
+            color: #1a0a2e;
+            text-shadow: 0 4px 20px rgba(255, 200, 0, 0.25), 0 2px 8px rgba(0, 0, 0, 0.05);
+            line-height: 1.2;
+            text-align: center;
+            word-break: break-word;
+            transition: transform 0.3s ease;
+        }
+        .card-front .tap-hint {
+            position: absolute;
+            bottom: 18px;
+            font-size: clamp(11px, 2vw, 14px);
+            color: #8888aa;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 4px 18px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+        }
+        .card-front .index-badge {
+            position: absolute;
+            top: 14px;
+            right: 16px;
+            font-size: clamp(13px, 2.4vw, 18px);
+            color: #aaaacc;
+            font-weight: 300;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 2px 14px;
+            border-radius: 30px;
+            backdrop-filter: blur(4px);
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+        }
+
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(160deg, #fefefe, #f5f0ff);
+            border: 2px solid rgba(160, 120, 255, 0.25);
+            justify-content: flex-start;
+            padding-top: 20px;
+            gap: 4px;
+            overflow-y: auto;
+        }
+        .card-back::-webkit-scrollbar {
+            width: 3px;
+        }
+        .card-back::-webkit-scrollbar-thumb {
+            background: #c0b0d0;
+            border-radius: 10px;
+        }
+
+        .card-back .back-pinyin {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(22px, 5vw, 38px);
+            color: #e85d75;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 8px rgba(232, 93, 117, 0.15);
+            margin-top: 4px;
+        }
+        .card-back .back-arti {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(16px, 3.6vw, 28px);
+            color: #2d1b4e;
+            font-weight: 500;
+            background: rgba(232, 93, 117, 0.08);
+            padding: 4px 18px;
+            border-radius: 30px;
+            margin: 2px 0 8px 0;
+            text-align: center;
+        }
+
+        .card-back .contoh-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 0 4px;
+        }
+        .card-back .contoh-label {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(12px, 2.2vw, 16px);
+            color: #8870aa;
+            letter-spacing: 3px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+        .card-back .contoh-hanzi {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(18px, 4vw, 32px);
+            color: #1a0a2e;
+            font-weight: 500;
+            text-align: center;
+            line-height: 1.5;
+            padding: 4px 0;
+            word-break: break-word;
+        }
+        .card-back .contoh-pinyin {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(14px, 3vw, 22px);
+            color: #e85d75;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.5;
+            opacity: 0.9;
+            word-break: break-word;
+        }
+        .card-back .contoh-arti {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(14px, 3vw, 22px);
+            color: #4a3a6a;
+            font-weight: 400;
+            text-align: center;
+            line-height: 1.5;
+            background: rgba(160, 120, 255, 0.07);
+            padding: 4px 16px;
+            border-radius: 30px;
+            margin-top: 2px;
+            word-break: break-word;
+        }
+
+        .card-back .back-tap-hint {
+            position: absolute;
+            bottom: 14px;
+            font-size: clamp(10px, 1.8vw, 13px);
+            color: #aaaacc;
+            letter-spacing: 1px;
+            opacity: 0.6;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 2px 16px;
+            border-radius: 30px;
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+        }
+
+        .dot-deco {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            margin: 2px 0 4px 0;
+        }
+        .dot-deco span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #d0b0e0;
+            opacity: 0.4;
+        }
+        .dot-deco span:nth-child(2) {
+            background: #e85d75;
+            opacity: 0.5;
+        }
+        .dot-deco span:nth-child(3) {
+            background: #48dbfb;
+            opacity: 0.4;
+        }
+
+        .card-back .content-wrap {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+            gap: 2px;
+            padding: 4px 0;
+        }
+
+        .highlight-word {
+            color: #e85d75;
+            font-weight: 700;
+            text-shadow: 0 0 12px rgba(232, 93, 117, 0.15);
+        }
+
+        /* ===== 导航栏 ===== */
+        .nav-bar {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            padding: 6px 0 0 0;
+            gap: 4px;
+            user-select: none;
+        }
+
+        .nav-btn {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(8px);
+            border: none;
+            border-radius: 40px;
+            padding: 8px 14px;
+            font-size: clamp(13px, 2.8vw, 20px);
+            font-weight: 600;
+            color: #3d2a5a;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            min-width: 44px;
+            justify-content: center;
+            white-space: nowrap;
+        }
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+        }
+        .nav-btn:active:not(:disabled) {
+            transform: scale(0.94);
+        }
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .nav-btn.prev-btn {
+            background: rgba(255, 215, 0, 0.6);
+            border-color: rgba(255, 215, 0, 0.3);
+        }
+        .nav-btn.prev-btn:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.85);
+        }
+
+        .nav-btn.next-btn {
+            background: rgba(72, 219, 251, 0.6);
+            border-color: rgba(72, 219, 251, 0.3);
+        }
+        .nav-btn.next-btn:hover:not(:disabled) {
+            background: rgba(72, 219, 251, 0.85);
+        }
+
+        .nav-btn.random-btn {
+            background: rgba(255, 150, 100, 0.6);
+            border-color: rgba(255, 150, 100, 0.3);
+            font-size: clamp(12px, 2.6vw, 18px);
+        }
+        .nav-btn.random-btn:hover:not(:disabled) {
+            background: rgba(255, 150, 100, 0.85);
+        }
+
+        .nav-counter {
+            font-family: 'SimSun', 'NSimSun', '宋体', serif;
+            font-size: clamp(13px, 2.6vw, 20px);
+            color: #3d2a5a;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(4px);
+            padding: 4px 14px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            min-width: 50px;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 440px) {
+            .phone-frame {
+                border-radius: 24px;
+                padding: 12px 10px 10px 10px;
+            }
+            .card-face {
+                padding: 16px 12px;
+                border-radius: 20px;
+            }
+            .card-flipper {
+                border-radius: 20px;
+            }
+            .nav-btn {
+                padding: 5px 10px;
+                min-width: 36px;
+                border-radius: 30px;
+                font-size: clamp(11px, 2.4vw, 16px);
+            }
+            .nav-counter {
+                min-width: 40px;
+                padding: 2px 10px;
+                font-size: clamp(10px, 2vw, 14px);
+            }
+        }
+
+        @media (max-height: 700px) {
+            .header h1 {
+                font-size: clamp(14px, 3.6vw, 20px);
+            }
+            .header .sub {
+                font-size: clamp(8px, 1.8vw, 12px);
+            }
+            .card-front .hanzi {
+                font-size: clamp(48px, 12vw, 80px);
+            }
+            .card-back .back-pinyin {
+                font-size: clamp(16px, 4vw, 26px);
+            }
+            .card-back .back-arti {
+                font-size: clamp(12px, 3vw, 20px);
+            }
+            .card-back .contoh-hanzi {
+                font-size: clamp(14px, 3.2vw, 22px);
+            }
+            .card-back .contoh-pinyin {
+                font-size: clamp(11px, 2.4vw, 16px);
+            }
+            .card-back .contoh-arti {
+                font-size: clamp(11px, 2.4vw, 16px);
+            }
+        }
+
+        @media (max-height: 600px) {
+            .card-front .hanzi {
+                font-size: clamp(36px, 10vw, 60px);
+            }
+            .card-back .back-pinyin {
+                font-size: clamp(14px, 3.2vw, 20px);
+            }
+            .card-back .back-arti {
+                font-size: clamp(10px, 2.4vw, 16px);
+            }
+            .card-back .contoh-hanzi {
+                font-size: clamp(12px, 2.6vw, 18px);
+            }
+            .card-back .contoh-pinyin {
+                font-size: clamp(10px, 2vw, 14px);
+            }
+            .card-back .contoh-arti {
+                font-size: clamp(10px, 2vw, 14px);
+            }
+            .header h1 {
+                font-size: clamp(12px, 3vw, 16px);
+            }
+            .header .sub {
+                font-size: clamp(7px, 1.4vw, 10px);
+            }
+        }
+
+        .card-wrapper:active .card-front .hanzi {
+            transform: scale(0.96);
+        }
+        .card-back {
+            scrollbar-width: thin;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-frame" id="app">
+
+        <div class="header">
+            <h1>✦ HSK6 LESSON 03 ✦</h1>
+            <div class="sub"><span>by LCN Palembang</span></div>
+        </div>
+
+        <div class="card-wrapper" id="cardWrapper">
+            <div class="card-flipper" id="cardFlipper">
+
+                <div class="card-face card-front">
+                    <div class="index-badge" id="frontIndex">1 / 44</div>
+                    <div class="hanzi" id="hanziDisplay">月饼</div>
+                    <div class="tap-hint">👆  klik untuk melihat</div>
+                </div>
+
+                <div class="card-face card-back" id="cardBack">
+                    <div class="content-wrap">
+                        <div class="back-pinyin" id="pinyinDisplay">yuè bǐnɡ</div>
+                        <div class="back-arti" id="artiDisplay">kue bulan</div>
+                        <div class="dot-deco">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="contoh-section">
+                            <div class="contoh-label">—  Contoh Kalimat  —</div>
+                            <div class="contoh-hanzi" id="contohHanzi">中秋节的时候，我们吃月饼。</div>
+                            <div class="contoh-pinyin" id="contohPinyin">Zhōngqiūjié de shíhou, wǒmen chī yuèbǐng.</div>
+                            <div class="contoh-arti" id="contohArti">Pada saat Festival Pertengahan Musim Gugur, kami makan kue bulan.</div>
+                        </div>
+                    </div>
+                    <div class="back-tap-hint">👆  klik untuk kembali</div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="nav-bar">
+            <button class="nav-btn prev-btn" id="prevBtn" disabled>◀ Prev</button>
+            <div class="nav-counter" id="navCounter">1 / 44</div>
+            <button class="nav-btn random-btn" id="randomBtn">🎲 Acak</button>
+            <button class="nav-btn next-btn" id="nextBtn">Next ▶</button>
+        </div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA KOSAKATA HSK6 LESSON 03 (44 kata)
+        // ============================================================
+        const baseData = [{
+            hanzi: '月饼',
+            pinyin: 'yuè bǐnɡ',
+            arti: 'kue bulan',
+            contoh: '中秋节的时候，我们吃月饼。',
+            contohPinyin: 'Zhōngqiūjié de shíhou, wǒmen chī yuèbǐng.',
+            contohArti: 'Pada saat Festival Pertengahan Musim Gugur, kami makan kue bulan.'
+        }, {
+            hanzi: '清晨',
+            pinyin: 'qīnɡ chén',
+            arti: 'awal pagi',
+            contoh: '清晨的阳光很温暖。',
+            contohPinyin: 'Qīngchén de yángguāng hěn wēnnuǎn.',
+            contohArti: 'Sinar matahari pagi sangat hangat.'
+        }, {
+            hanzi: '迎面',
+            pinyin: 'yínɡ miàn',
+            arti: 'head-on, tatap muka',
+            contoh: '他迎面走来，向我打招呼。',
+            contohPinyin: 'Tā yíngmiàn zǒu lái, xiàng wǒ dǎzhāohu.',
+            contohArti: 'Dia berjalan ke arahku dan menyapaku.'
+        }, {
+            hanzi: '模样',
+            pinyin: 'mú yànɡ',
+            arti: 'penampilan, rupa',
+            contoh: '她的模样很可爱。',
+            contohPinyin: 'Tā de múyàng hěn kě\'ài.',
+            contohArti: 'Penampilannya sangat manis.'
+        }, {
+            hanzi: '打量',
+            pinyin: 'dǎ lianɡ',
+            arti: 'mengamati, melihat keseluruhan',
+            contoh: '他仔细打量了我一番。',
+            contohPinyin: 'Tā zǐxì dǎliang le wǒ yī fān.',
+            contohArti: 'Dia mengamati saya dengan saksama.'
+        }, {
+            hanzi: '番',
+            pinyin: 'fān',
+            arti: '(menunjukkan proses atau tindakan) macam, kali',
+            contoh: '我们讨论了一番。',
+            contohPinyin: 'Wǒmen tǎolùn le yī fān.',
+            contohArti: 'Kami berdiskusi beberapa kali.'
+        }, {
+            hanzi: '搓',
+            pinyin: 'cuō',
+            arti: 'menggosok (tangan)',
+            contoh: '天气很冷，他不停地搓手。',
+            contohPinyin: 'Tiānqì hěn lěng, tā bùtíng de cuō shǒu.',
+            contohArti: 'Cuaca sangat dingin, dia terus menggosok tangannya.'
+        }, {
+            hanzi: '迟疑',
+            pinyin: 'chí yí',
+            arti: 'ragu-ragu',
+            contoh: '他迟疑了一会儿，然后回答了我的问题。',
+            contohPinyin: 'Tā chíyí le yīhuìr, ránhòu huídá le wǒ de wèntí.',
+            contohArti: 'Dia ragu-ragu sebentar, lalu menjawab pertanyaanku.'
+        }, {
+            hanzi: '拜托',
+            pinyin: 'bài tuō',
+            arti: 'meminta bantuan, meminta tolong',
+            contoh: '拜托你帮我拿一下行李。',
+            contohPinyin: 'Bàituō nǐ bāng wǒ ná yīxià xíngli.',
+            contohArti: 'Tolong bantu saya ambilkan barang bawaan.'
+        }, {
+            hanzi: '饱经沧桑',
+            pinyin: 'bǎo jīnɡ-cānɡ sānɡ',
+            arti: 'kenyang dengan pengalaman hidup',
+            contoh: '这位老人饱经沧桑，经历了许多风雨。',
+            contohPinyin: 'Zhè wèi lǎorén bǎojīng-cāngsāng, jīnglì le xǔduō fēngyǔ.',
+            contohArti: 'Orang tua ini kenyang dengan pengalaman hidup, telah melewati banyak suka duka.'
+        }, {
+            hanzi: '流露',
+            pinyin: 'liú lù',
+            arti: 'menunjukkan secara tidak sengaja (satu pikiran atau perasaan)',
+            contoh: '他的眼神流露出喜悦。',
+            contohPinyin: 'Tā de yǎnshén liúlù chū xǐyuè.',
+            contohArti: 'Ekspresi matanya menunjukkan kegembiraan.'
+        }, {
+            hanzi: '朴实',
+            pinyin: 'pǔ shí',
+            arti: 'tulus, jujur, bersahaja',
+            contoh: '他为人朴实善良。',
+            contohPinyin: 'Tā wèirén pǔshí shànliáng.',
+            contohArti: 'Dia orang yang tulus dan baik hati.'
+        }, {
+            hanzi: '过于',
+            pinyin: 'ɡuò yú',
+            arti: 'Terlalu, sangat',
+            contoh: '你过于担心了。',
+            contohPinyin: 'Nǐ guòyú dānxīn le.',
+            contohArti: 'Kamu terlalu khawatir.'
+        }, {
+            hanzi: '操劳',
+            pinyin: 'cāo láo',
+            arti: 'bekerja keras',
+            contoh: '父母为孩子操劳了一辈子。',
+            contohPinyin: 'Fùmǔ wèi háizi cāoláo le yībèizi.',
+            contohArti: 'Orang tua bekerja keras untuk anak-anak seumur hidup.'
+        }, {
+            hanzi: '胡须',
+            pinyin: 'hú xū',
+            arti: 'kumis, jenggot',
+            contoh: '他留着一把胡须。',
+            contohPinyin: 'Tā liú zhe yī bǎ húxū.',
+            contohArti: 'Dia memelihara jenggot.'
+        }, {
+            hanzi: '起码',
+            pinyin: 'qǐ mǎ',
+            arti: 'minimal, setidaknya',
+            contoh: '你起码应该道个歉。',
+            contohPinyin: 'Nǐ qǐmǎ yīnggāi dào gè qiàn.',
+            contohArti: 'Setidaknya kamu harus minta maaf.'
+        }, {
+            hanzi: '口音',
+            pinyin: 'kǒu yīn',
+            arti: 'aksen, logat',
+            contoh: '他有很重的南方口音。',
+            contohPinyin: 'Tā yǒu hěn zhòng de nánfāng kǒuyīn.',
+            contohArti: 'Dia memiliki logat selatan yang kuat.'
+        }, {
+            hanzi: '乡镇',
+            pinyin: 'xiānɡ zhèn',
+            arti: 'kampung, pedesaan',
+            contoh: '他来自一个美丽的乡镇。',
+            contohPinyin: 'Tā láizì yīgè měilì de xiāngzhèn.',
+            contohArti: 'Dia berasal dari sebuah desa yang indah.'
+        }, {
+            hanzi: '原先',
+            pinyin: 'yuán xiān',
+            arti: 'bekas, asli',
+            contoh: '他原先是我的同事。',
+            contohPinyin: 'Tā yuánxiān shì wǒ de tóngshì.',
+            contohArti: 'Dulu dia adalah rekan kerjaku.'
+        }, {
+            hanzi: '裁缝',
+            pinyin: 'cái fenɡ',
+            arti: 'Penjahit',
+            contoh: '我的衣服是裁缝做的。',
+            contohPinyin: 'Wǒ de yīfu shì cáifeng zuò de.',
+            contohArti: 'Bajuku dibuat oleh penjahit.'
+        }, {
+            hanzi: '港口',
+            pinyin: 'ɡǎnɡ kǒu',
+            arti: 'pelabuhan',
+            contoh: '这艘船停靠在港口。',
+            contohPinyin: 'Zhè sōu chuán tíngkào zài gǎngkǒu.',
+            contohArti: 'Kapal ini berlabuh di pelabuhan.'
+        }, {
+            hanzi: '斯文',
+            pinyin: 'sī wen',
+            arti: 'berbudi luhur, sopan, lemah lembut',
+            contoh: '他看起来非常斯文。',
+            contohPinyin: 'Tā kàn qǐlái fēicháng sīwén.',
+            contohArti: 'Dia terlihat sangat sopan dan lemah lembut.'
+        }, {
+            hanzi: '心眼儿',
+            pinyin: 'xīn yǎnr',
+            arti: 'niat, (mata) hati',
+            contoh: '他心眼儿很好。',
+            contohPinyin: 'Tā xīnyǎnr hěn hǎo.',
+            contohArti: 'Dia memiliki hati yang baik.'
+        }, {
+            hanzi: '信誉',
+            pinyin: 'xìn yù',
+            arti: 'gengsi, reputasi, wibawa',
+            contoh: '这家公司的信誉很好。',
+            contohPinyin: 'Zhè jiā gōngsī de xìnyù hěn hǎo.',
+            contohArti: 'Reputasi perusahaan ini sangat baik.'
+        }, {
+            hanzi: '欺骗',
+            pinyin: 'qī piàn',
+            arti: 'menipu',
+            contoh: '他不应该欺骗别人。',
+            contohPinyin: 'Tā bù yīnggāi qīpiàn biérén.',
+            contohArti: 'Dia seharusnya tidak menipu orang lain.'
+        }, {
+            hanzi: '学位',
+            pinyin: 'xué wèi',
+            arti: 'gelar akademis',
+            contoh: '他获得了博士学位。',
+            contohPinyin: 'Tā huòdé le bóshì xuéwèi.',
+            contohArti: 'Dia meraih gelar doktor.'
+        }, {
+            hanzi: '一流',
+            pinyin: 'yì liú',
+            arti: 'kelas utama, kelas satu',
+            contoh: '这是一流的大学。',
+            contohPinyin: 'Zhè shì yīliú de dàxué.',
+            contohArti: 'Ini adalah universitas kelas satu.'
+        }, {
+            hanzi: '主管',
+            pinyin: 'zhǔ ɡuǎn',
+            arti: 'penanggung jawab, manajer',
+            contoh: '他是部门主管。',
+            contohPinyin: 'Tā shì bùmén zhǔguǎn.',
+            contohArti: 'Dia adalah manajer departemen.'
+        }, {
+            hanzi: '助手',
+            pinyin: 'zhù shǒu',
+            arti: 'asisten',
+            contoh: '他是教授的助手。',
+            contohPinyin: 'Tā shì jiàoshòu de zhùshǒu.',
+            contohArti: 'Dia adalah asisten profesor.'
+        }, {
+            hanzi: '骨干',
+            pinyin: 'ɡǔ ɡàn',
+            arti: 'tulang punggung, andalan',
+            contoh: '他是公司的骨干力量。',
+            contohPinyin: 'Tā shì gōngsī de gǔgàn lìliàng.',
+            contohArti: 'Dia adalah tulang punggung perusahaan.'
+        }, {
+            hanzi: '小心翼翼',
+            pinyin: 'xiǎo xīn-yì yì',
+            arti: 'dengan sangat hati-hati',
+            contoh: '他小心翼翼地端着那杯水。',
+            contohPinyin: 'Tā xiǎoxīn-yìyì de duān zhe nà bēi shuǐ.',
+            contohArti: 'Dia dengan sangat hati-hati membawa segelas air itu.'
+        }, {
+            hanzi: '喜悦',
+            pinyin: 'xǐ yuè',
+            arti: 'menyenangkan, menggembirakan',
+            contoh: '他的脸上露出喜悦的笑容。',
+            contohPinyin: 'Tā de liǎn shàng lùchū xǐyuè de xiàoróng.',
+            contohArti: 'Di wajahnya terlihat senyum gembira.'
+        }, {
+            hanzi: '拨',
+            pinyin: 'bō',
+            arti: 'memanggil, menghubungi (telepon)',
+            contoh: '我拨了他的电话。',
+            contohPinyin: 'Wǒ bō le tā de diànhuà.',
+            contohArti: 'Saya meneleponnya.'
+        }, {
+            hanzi: '仍旧',
+            pinyin: 'rénɡ jiù',
+            arti: 'Tetap saja, seperti biasa',
+            contoh: '他仍旧没有改变主意。',
+            contohPinyin: 'Tā réngjiù méiyǒu gǎibiàn zhǔyì.',
+            contohArti: 'Dia tetap tidak berubah pikiran.'
+        }, {
+            hanzi: '隐约',
+            pinyin: 'yǐn yuē',
+            arti: 'sayup2, samar2',
+            contoh: '远处隐约传来歌声。',
+            contohPinyin: 'Yuǎnchù yǐnyuē chuánlái gēshēng.',
+            contohArti: 'Dari kejauhan terdengar samar-samar suara nyanyian.'
+        }, {
+            hanzi: '浑身',
+            pinyin: 'hún shēn',
+            arti: 'di seluruh tubuh, dari kepala hingga tumit',
+            contoh: '他浑身是汗。',
+            contohPinyin: 'Tā húnshēn shì hàn.',
+            contohArti: 'Seluruh tubuhnya berkeringat.'
+        }, {
+            hanzi: '馅儿',
+            pinyin: 'xiànr',
+            arti: 'mengisi, isian (bakpao, dll)',
+            contoh: '这个包子馅儿很香。',
+            contohPinyin: 'Zhège bāozi xiànr hěn xiāng.',
+            contohArti: 'Isian bakpao ini sangat harum.'
+        }, {
+            hanzi: '灿烂',
+            pinyin: 'càn làn',
+            arti: 'megah, luar biasa, cemerlang',
+            contoh: '阳光非常灿烂。',
+            contohPinyin: 'Yángguāng fēicháng cànlàn.',
+            contohArti: 'Sinar matahari sangat cemerlang.'
+        }, {
+            hanzi: '惦记',
+            pinyin: 'diàn jì',
+            arti: 'terus memikirkan, menjadi perhatian',
+            contoh: '他一直在惦记着家里的情况。',
+            contohPinyin: 'Tā yīzhí zài diànjì zhe jiāli de qíngkuàng.',
+            contohArti: 'Dia terus memikirkan keadaan di rumah.'
+        }, {
+            hanzi: '丢人',
+            pinyin: 'diū rén',
+            arti: 'dipermalukan, kehilangan muka',
+            contoh: '在大家面前犯错太丢人了。',
+            contohPinyin: 'Zài dàjiā miànqián fàncuò tài diūrén le.',
+            contohArti: 'Membuat kesalahan di depan umum sangat memalukan.'
+        }, {
+            hanzi: '炫耀',
+            pinyin: 'xuàn yào',
+            arti: 'memamerkan',
+            contoh: '她喜欢炫耀自己的新衣服。',
+            contohPinyin: 'Tā xǐhuān xuànyào zìjǐ de xīn yīfu.',
+            contohArti: 'Dia suka memamerkan baju barunya.'
+        }, {
+            hanzi: '面子',
+            pinyin: 'miàn zi',
+            arti: 'muka, reputasi',
+            contoh: '他爱面子，不愿意承认错误。',
+            contohPinyin: 'Tā ài miànzi, bù yuànyì chéngrèn cuòwù.',
+            contohArti: 'Dia menjaga reputasi, tidak mau mengakui kesalahan.'
+        }, {
+            hanzi: '辜负',
+            pinyin: 'ɡū fù',
+            arti: 'mengecewakan, menyia2kan, menghianati',
+            contoh: '我不会辜负你的期望。',
+            contohPinyin: 'Wǒ bù huì gūfù nǐ de qīwàng.',
+            contohArti: 'Saya tidak akan mengecewakan harapanmu.'
+        }, {
+            hanzi: '期望',
+            pinyin: 'qī wànɡ',
+            arti: 'berharap, mengharapkan',
+            contoh: '我期望能有一个好成绩。',
+            contohPinyin: 'Wǒ qīwàng néng yǒu yīgè hǎo chéngjì.',
+            contohArti: 'Saya berharap bisa mendapatkan nilai bagus.'
+        }];
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+        let currentData = [...baseData];
+        let currentIndex = 0;
+        const total = baseData.length;
+
+        // DOM refs
+        const cardFlipper = document.getElementById('cardFlipper');
+        const cardWrapper = document.getElementById('cardWrapper');
+        const hanziDisplay = document.getElementById('hanziDisplay');
+        const frontIndex = document.getElementById('frontIndex');
+        const pinyinDisplay = document.getElementById('pinyinDisplay');
+        const artiDisplay = document.getElementById('artiDisplay');
+        const contohHanzi = document.getElementById('contohHanzi');
+        const contohPinyin = document.getElementById('contohPinyin');
+        const contohArti = document.getElementById('contohArti');
+        const navCounter = document.getElementById('navCounter');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const randomBtn = document.getElementById('randomBtn');
+
+        let isFlipped = false;
+
+        // ============================================================
+        //  RENDER
+        // ============================================================
+        function renderCard(index) {
+            const data = currentData[index];
+            if (!data) return;
+
+            hanziDisplay.textContent = data.hanzi;
+            frontIndex.textContent = `${index + 1} / ${total}`;
+
+            pinyinDisplay.textContent = data.pinyin;
+            artiDisplay.textContent = data.arti;
+
+            // Highlight target
+            const target = data.hanzi;
+            let contohHtml = data.contoh;
+            if (target.length === 1) {
+                const regex = new RegExp(target, 'g');
+                contohHtml = contohHtml.replace(regex, `<span class="highlight-word">${target}</span>`);
+            } else {
+                const regex = new RegExp(target, 'g');
+                contohHtml = contohHtml.replace(regex, `<span class="highlight-word">${target}</span>`);
+            }
+            contohHanzi.innerHTML = contohHtml;
+
+            contohPinyin.textContent = data.contohPinyin;
+            contohArti.textContent = data.contohArti;
+
+            navCounter.textContent = `${index + 1} / ${total}`;
+            prevBtn.disabled = (index === 0);
+            nextBtn.disabled = (index === total - 1);
+
+            if (isFlipped) {
+                cardFlipper.classList.remove('flipped');
+                isFlipped = false;
+            }
+        }
+
+        function goTo(index) {
+            if (index < 0 || index >= total) return;
+            currentIndex = index;
+            renderCard(currentIndex);
+        }
+
+        function nextCard() {
+            if (currentIndex < total - 1) goTo(currentIndex + 1);
+        }
+
+        function prevCard() {
+            if (currentIndex > 0) goTo(currentIndex - 1);
+        }
+
+        // ============================================================
+        //  SHUFFLE
+        // ============================================================
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        function shuffleCards() {
+            shuffleArray(currentData);
+            currentIndex = 0;
+            renderCard(0);
+        }
+
+        // ============================================================
+        //  FLIP
+        // ============================================================
+        function toggleFlip(e) {
+            if (e.target.closest('.nav-btn') || e.target.closest('.nav-bar')) return;
+            cardFlipper.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        // ============================================================
+        //  KEYBOARD
+        // ============================================================
+        function handleKeydown(e) {
+            if (e.key === 'ArrowRight') { e.preventDefault();
+                nextCard(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault();
+                prevCard(); }
+            if (e.key === ' ' || e.key === 'Enter') { e.preventDefault();
+                toggleFlip(e); }
+        }
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+        cardWrapper.addEventListener('click', toggleFlip);
+        prevBtn.addEventListener('click', (e) => { e.stopPropagation();
+            prevCard(); });
+        nextBtn.addEventListener('click', (e) => { e.stopPropagation();
+            nextCard(); });
+        randomBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shuffleCards();
+        });
+        document.addEventListener('keydown', handleKeydown);
+
+        renderCard(0);
+
+        // ============================================================
+        //  SWIPE
+        // ============================================================
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const wrapper = document.querySelector('.phone-frame');
+
+        wrapper.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            touchStartX = touch.clientX;
+            touchStartY = touch.clientY;
+        }, { passive: true });
+
+        wrapper.addEventListener('touchend', (e) => {
+            if (touchStartX === 0) return;
+            const touchEnd = e.changedTouches[0];
+            const deltaX = touchEnd.clientX - touchStartX;
+            const deltaY = touchEnd.clientY - touchStartY;
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 40) {
+                if (deltaX < 0) nextCard();
+                else prevCard();
+            }
+            touchStartX = 0;
+            touchStartY = 0;
+        }, { passive: true });
+
+        console.log(`✅ HSK6 LESSON 03 — ${total} kosakata siap!`);
+        console.log('🎲 Tombol "Acak" untuk mengubah urutan.');
+    </script>
+
+</body>
+</html>
